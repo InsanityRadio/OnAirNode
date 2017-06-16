@@ -56,6 +56,8 @@ module GPIO
 			@sources[old_selected].off unless old_selected == @selected
 		end
 
+		File.write("./dat/node_#{$node_id}_last_state", source_id.to_s) rescue nil
+
 	end
 
 end
