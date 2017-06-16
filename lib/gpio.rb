@@ -1,7 +1,7 @@
 require 'logger'
 
 begin 
-	require 'pi_piper'
+	require 'rpi_gpio'
 	$mode = 'RaspberryPi'
 rescue LoadError
 	$mode = 'Dummy'
@@ -30,21 +30,26 @@ end
 class RaspberryPi < IO
 
 	def initialize index
+		
 		@index = index
+		@pin = [-1, 17, 18, 27][index]
+		RPi::GPIO.set_numbering :bcm
+
 		begin
-			@pin = PiPiper::Pin.new(:pin => [-1, 17, 18, 27][index], :direction => :out)
+			RPi::GPIO.setup @pin, :as => :output
 		rescue
-			File.open("/sys/class/gpio/unexport", "w") { | f | f.write("#{index}") }
-			@pin = PiPiper::Pin.new(:pin => [-1, 17, 18, 27][index], :direction => :out)
+			RPi::GPIO.clean_up
+			RPi::GPIO.setup @pin, :as => :output
 		end
+
 	end
 
 	def on
-		@pin.on
+		RPi::GPIO.set_high @pin
 	end
 
 	def off
-		@pin.off
+		RPi::GPIO.set_low @pin
 	end
 
 end
