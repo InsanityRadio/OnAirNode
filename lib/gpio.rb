@@ -31,7 +31,12 @@ class RaspberryPi < IO
 
 	def initialize index
 		@index = index
-		@pin = PiPiper::Pin.new(:pin => [-1, 17, 18, 27][index], :direction => :out)
+		begin
+			@pin = PiPiper::Pin.new(:pin => [-1, 17, 18, 27][index], :direction => :out)
+		rescue
+			File.open("/sys/class/gpio/unexport", "w") { | f | f.write("#{index}") }
+			@pin = PiPiper::Pin.new(:pin => [-1, 17, 18, 27][index], :direction => :out)
+		end
 	end
 
 	def on
