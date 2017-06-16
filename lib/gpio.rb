@@ -1,5 +1,12 @@
-# require 'pi_piper'
 require 'logger'
+
+begin 
+	require 'pi_piper'
+	$mode = 'RaspberryPi'
+rescue LoadError
+	$mode = 'Dummy'
+end
+
 
 class IO; end
 
@@ -42,7 +49,7 @@ module GPIO
 	@sources = [Dummy.new(0)]
 	@selected = 0
 
-	(1..3).each { | p | @sources << Dummy.new(p) }
+	(1..3).each { | p | @sources << Object.const_get($mode).new(p) }
 
 	def self.switch_to source_id, tail = 10
 
